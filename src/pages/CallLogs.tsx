@@ -24,14 +24,17 @@ export const CallLogs: React.FC = () => {
     fetchCalls();
   }, []);
 
-  const filteredCalls = calls.filter(c => 
-    c.twilioSid.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.status.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCalls = calls!.filter(c => {
+    console.log(c);
+
+    return c.twilioSid.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.status.toLowerCase().includes(searchTerm.toLowerCase())
+  }
   );
 
   const columns = [
-    { 
-      header: 'Call ID', 
+    {
+      header: 'Call ID',
       accessor: (item: any) => (
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400">
@@ -41,8 +44,8 @@ export const CallLogs: React.FC = () => {
         </div>
       )
     },
-    { 
-      header: 'Date & Time', 
+    {
+      header: 'Date & Time',
       accessor: (item: any) => (
         <div className="flex items-center gap-2">
           <Clock size={14} className="text-gray-400" />
@@ -50,8 +53,8 @@ export const CallLogs: React.FC = () => {
         </div>
       )
     },
-    { 
-      header: 'Status', 
+    {
+      header: 'Status',
       accessor: (item: any) => (
         <div className={cn(
           "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
@@ -62,12 +65,12 @@ export const CallLogs: React.FC = () => {
         </div>
       )
     },
-    { 
-      header: 'Duration', 
+    {
+      header: 'Duration',
       accessor: () => <span className="text-gray-500">0:45s</span>
     },
-    { 
-      header: 'Actions', 
+    {
+      header: 'Actions',
       accessor: () => (
         <button className="text-emerald-600 font-bold text-xs hover:underline">
           View Details
@@ -92,9 +95,9 @@ export const CallLogs: React.FC = () => {
       <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm mb-10 flex flex-col md:flex-row gap-4">
         <div className="relative flex-1 group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors" size={20} />
-          <input 
-            type="text" 
-            placeholder="Search by SID or status..." 
+          <input
+            type="text"
+            placeholder="Search by SID or status..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-sm focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all outline-none"
@@ -106,10 +109,10 @@ export const CallLogs: React.FC = () => {
         </button>
       </div>
 
-      <DataTable 
-        columns={columns} 
-        data={filteredCalls} 
-        isLoading={isLoading} 
+      <DataTable
+        columns={columns}
+        data={filteredCalls}
+        isLoading={isLoading}
         emptyMessage="No call logs found."
       />
     </DashboardLayout>

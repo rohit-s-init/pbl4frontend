@@ -1,6 +1,10 @@
 import React from 'react';
-import { Clock, MessageSquare, ToggleLeft, ToggleRight, Edit2, Trash2, Calendar } from 'lucide-react';
+import { Clock, MessageSquare, ToggleLeft, ToggleRight, Edit2, PhoneIncoming, Trash2, Calendar, CalendarClock, Loader } from 'lucide-react';
 import { cn } from '../utils/cn';
+import { api } from "../services/api"
+import { AnimatePresence, motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react"
 
 interface Schedule {
   id: number;
@@ -18,6 +22,50 @@ interface ScheduleCardProps {
 }
 
 export const ScheduleCard: React.FC<ScheduleCardProps> = ({ schedule, onToggle, onEdit, onDelete }) => {
+
+  const [isLoading, updateIsLoading] = useState(false);
+  // const navigate = useNavigate();
+  const [timer, setTimer] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+
+  useEffect(() => {
+    if (!isRunning) return;
+
+    const interval = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setIsRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval); // cleanup
+  }, [isRunning]);
+
+
+  async function handleCallReq() {
+    updateIsLoading(true);
+    const resp = await api.makeCall(schedule.id)
+    // const resp: { status: boolean } = await new Promise((resolve, reject) => {
+    //   setTimeout(() => {
+    //     resolve({ status: true })
+    //   }, 1000);
+    // })
+    // if (resp.status) {
+      updateIsLoading(false);
+
+      updateIsLoading(false);
+
+      setTimer(10);
+      setIsRunning(true);
+
+    // }
+  }
+
+
   return (
     <div className={cn(
       "bg-white rounded-3xl p-6 border-2 transition-all group relative overflow-hidden",
@@ -48,7 +96,7 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ schedule, onToggle, 
           </div>
         </div>
 
-        <button 
+        <button
           onClick={() => onToggle(schedule.id, !schedule.isActive)}
           className={cn(
             "transition-colors p-1 rounded-lg",
@@ -73,20 +121,30 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ schedule, onToggle, 
       </div>
 
       <div className="flex items-center gap-2 pt-4 border-t border-gray-50 relative z-10">
-        <button 
+        <button
           onClick={() => onEdit(schedule.id)}
           className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
         >
           <Edit2 size={16} />
           Edit
         </button>
-        <button 
+        <button
+          onClick={() => { handleCallReq() }}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
+        >
+          {isLoading ? <Loader size={20} /> : <> {timer == 0 ? <><PhoneIncoming size={16} /> Call</> : timer}</>}
+        </button>
+        <button
           onClick={() => onDelete(schedule.id)}
           className="p-2.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
         >
           <Trash2 size={20} />
         </button>
+
       </div>
+
     </div>
   );
 };
+
+

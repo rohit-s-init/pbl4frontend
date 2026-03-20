@@ -28,6 +28,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const userData = await api.getMe();
         if (userData) {
           setUser(userData);
+          console.log("user updated to ");
+          console.log(user);
         }
       } catch (e) {
         console.error("Session check failed", e);
@@ -37,6 +39,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     checkSession();
   }, []);
+
+  const [callsAval, updateCallsAva] = React.useState<number>();
+
+  React.useEffect(() => {
+    (async () => {
+      const data = await api.totalCallsAvaliable();
+      updateCallsAva(parseInt(data.balance) / 0.1);
+    })()
+  }, [])
 
   const login = (userData: User) => {
     setUser(userData);
@@ -53,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, isLoading, credits: callsAval }}>
       {children}
     </AuthContext.Provider>
   );

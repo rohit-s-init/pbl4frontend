@@ -1,178 +1,210 @@
-/**
- * Simulated API services for the Medication Reminder System.
- * Uses Promises and setTimeout to mimic real network requests.
- */
+const BASE_URL = "https://pbl4-backend-ten.vercel.app/api";
 
-const DELAY = 800;
+// =======================
+// 🔑 TOKEN HANDLING
+// =======================
+const getToken = () => localStorage.getItem("medcall_token");
 
-// Mock Data Generators
-const generateId = () => Math.floor(Math.random() * 1000000);
+const authHeaders = () => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${getToken()}`,
+});
 
-const MOCK_SCHEDULES = [
-  { id: 1, message: "Hello Rohit, did you take your morning medicine?", time: "08:00", label: "Morning", isActive: true },
-  { id: 2, message: "Hi Rohit, it's time for your evening dose.", time: "20:00", label: "Night", isActive: true },
-];
-
-const MOCK_CALLS = [
-  { id: 101, scheduleId: 1, timestamp: new Date(Date.now() - 3600000 * 2).toISOString(), status: "completed", twilioSid: "CA123456789" },
-  { id: 102, scheduleId: 2, timestamp: new Date(Date.now() - 3600000 * 24).toISOString(), status: "completed", twilioSid: "CA987654321" },
-  { id: 103, scheduleId: 1, timestamp: new Date(Date.now() - 3600000 * 26).toISOString(), status: "failed", twilioSid: "CA555555555" },
-];
-
-const MOCK_RESPONSES = [
-  { id: 201, callId: 101, speechText: "yes", interpretedIntent: "YES", timestamp: new Date(Date.now() - 3600000 * 2 + 60000).toISOString() },
-  { id: 202, callId: 102, speechText: "not yet", interpretedIntent: "NO", timestamp: new Date(Date.now() - 3600000 * 24 + 120000).toISOString() },
-];
-
-// Local Storage Keys
-const STORAGE_KEYS = {
-  SCHEDULES: 'medcall_schedules',
-  USER: 'medcall_user',
-  TOKEN: 'medcall_token',
+const saveAuth = (user: any, token: string) => {
+  localStorage.setItem("medcall_user", JSON.stringify(user));
+  localStorage.setItem("medcall_token", token);
 };
 
-// Helper to get from local storage or use mock
-const getFromStorage = (key: string, fallback: any) => {
-  const stored = localStorage.getItem(key);
-  return stored ? JSON.parse(stored) : fallback;
+const clearAuth = () => {
+  console.log("clearing auth")
+  localStorage.removeItem("medcall_user");
+  localStorage.removeItem("medcall_token");
 };
 
-const saveToStorage = (key: string, data: any) => {
-  localStorage.setItem(key, JSON.stringify(data));
-};
-
+// =======================
+// 🌐 API
+// =======================
 export const api = {
-  // Auth
+
+  // =======================
+  // 🔐 AUTH
+  // =======================
   login: async (phone: string) => {
-    /**
-     * REAL API REQUEST:
-     * const response = await fetch("/api/auth/login", {
-     *   method: "POST",
-     *   headers: { "Content-Type": "application/json" },
-     *   body: JSON.stringify({ phone }),
-     * });
-     * return response.json();
-     */
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    const user = { id: 1, name: "Rohit Sawant", phone, email: "rohit@example.com" };
-    saveToStorage(STORAGE_KEYS.USER, user);
-    saveToStorage(STORAGE_KEYS.TOKEN, "simulated-jwt-token");
-    return { success: true, user };
+    const res = await fetch(`${BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone }),
+    });
+
+    return res.json();
   },
 
   sendOtp: async (phone: string) => {
-    /**
-     * REAL API REQUEST:
-     * const response = await fetch("/api/auth/send-otp", {
-     *   method: "POST",
-     *   headers: { "Content-Type": "application/json" },
-     *   body: JSON.stringify({ phone }),
-     * });
-     * return response.json();
-     */
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    console.log(`OTP sent to ${phone}: 123456`);
-    return { success: true };
+    const res = await fetch(`${BASE_URL}/auth/send-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone }),
+    });
+
+    return res.json();
   },
 
   verifyOtp: async (phone: string, otp: string, userData?: any) => {
-    /**
-     * REAL API REQUEST:
-     * const response = await fetch("/api/auth/verify-otp", {
-     *   method: "POST",
-     *   headers: { "Content-Type": "application/json" },
-     *   body: JSON.stringify({ phone, otp, ...userData }),
-     * });
-     * return response.json();
-     */
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    if (otp === '123456') {
-      const user = { id: 1, name: userData?.name || "New User", phone, email: userData?.email || "" };
-      saveToStorage(STORAGE_KEYS.USER, user);
-      saveToStorage(STORAGE_KEYS.TOKEN, "simulated-jwt-token");
-      return { success: true, user };
+    const res = await fetch(`${BASE_URL}/auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, otp, ...userData }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      saveAuth(data.user, data.token);
+      console.log("updating user");
     }
-    throw new Error("Invalid OTP");
+
+    return data;
+  },
+
+  verifyOtpLogin: async (phone: string, otp: string) => {
+    const res = await fetch(`${BASE_URL}/auth/verify-otp-login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, otp }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      saveAuth(data.user, data.token);
+    }
+
+    return data;
   },
 
   logout: async () => {
-    /**
-     * REAL API REQUEST:
-     * const response = await fetch("/api/auth/logout", { method: "POST" });
-     * return response.json();
-     */
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    localStorage.removeItem(STORAGE_KEYS.USER);
-    localStorage.removeItem(STORAGE_KEYS.TOKEN);
+    await fetch(`${BASE_URL}/auth/logout`, {
+      method: "POST",
+      headers: authHeaders(),
+    });
+
+    clearAuth();
     return { success: true };
   },
 
   getMe: async () => {
-    /**
-     * REAL API REQUEST:
-     * const response = await fetch("/api/auth/me");
-     * if (!response.ok) return null;
-     * const data = await response.json();
-     * return data.user;
-     */
-    await new Promise(resolve => setTimeout(resolve, 100));
-    const user = getFromStorage(STORAGE_KEYS.USER, null);
-    const token = getFromStorage(STORAGE_KEYS.TOKEN, null);
-    if (user && token) return user;
-    return null;
+    const res = await fetch(`${BASE_URL}/auth/me`, {
+      headers: authHeaders(),
+    });
+
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    return data.user;
   },
 
-  // Schedules
+  // =======================
+  // 📅 SCHEDULES
+  // =======================
   getSchedules: async () => {
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    return getFromStorage(STORAGE_KEYS.SCHEDULES, MOCK_SCHEDULES);
+    const res = await fetch(`${BASE_URL}/schedules`, {
+      headers: authHeaders(),
+    });
+
+    const data = await res.json();
+    return data.schedules;
   },
 
   createSchedule: async (schedule: any) => {
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    const schedules = getFromStorage(STORAGE_KEYS.SCHEDULES, MOCK_SCHEDULES);
-    const newSchedule = { ...schedule, id: generateId() };
-    const updated = [...schedules, newSchedule];
-    saveToStorage(STORAGE_KEYS.SCHEDULES, updated);
-    return newSchedule;
+    const res = await fetch(`${BASE_URL}/schedules`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(schedule),
+    });
+
+    return res.json();
   },
 
   updateSchedule: async (id: number, updates: any) => {
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    const schedules = getFromStorage(STORAGE_KEYS.SCHEDULES, MOCK_SCHEDULES);
-    const updated = schedules.map((s: any) => s.id === id ? { ...s, ...updates } : s);
-    saveToStorage(STORAGE_KEYS.SCHEDULES, updated);
-    return updated.find((s: any) => s.id === id);
+    const res = await fetch(`${BASE_URL}/schedules/${id}`, {
+      method: "PUT",
+      headers: authHeaders(),
+      body: JSON.stringify(updates),
+    });
+
+    return res.json();
   },
 
   deleteSchedule: async (id: number) => {
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    const schedules = getFromStorage(STORAGE_KEYS.SCHEDULES, MOCK_SCHEDULES);
-    const updated = schedules.filter((s: any) => s.id !== id);
-    saveToStorage(STORAGE_KEYS.SCHEDULES, updated);
-    return { success: true };
+    const res = await fetch(`${BASE_URL}/schedules/${id}`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    });
+
+    return res.json();
   },
 
-  // Logs
+  // =======================
+  // 📞 CALLS
+  // =======================
   getCalls: async () => {
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    return MOCK_CALLS;
+    const res = await fetch(`${BASE_URL}/calls`, {
+      headers: authHeaders(),
+    });
+
+    const data = await res.json();
+    return data.calls;
   },
 
   getResponses: async () => {
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    return MOCK_RESPONSES;
+    const res = await fetch(`${BASE_URL}/calls/responses`, {
+      headers: authHeaders(),
+    });
+
+    const data = await res.json();
+    return data.responses;
   },
 
-  // Profile
+  // =======================
+  // 👤 PROFILE
+  // =======================
   getProfile: async () => {
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    return getFromStorage(STORAGE_KEYS.USER, { id: 1, name: "Rohit Sawant", phone: "+91 9876543210", email: "rohit@example.com" });
+    const res = await fetch(`${BASE_URL}/user/profile`, {
+      headers: authHeaders(),
+    });
+
+    const data = await res.json();
+    return data.user;
   },
 
   updateProfile: async (userData: any) => {
-    await new Promise(resolve => setTimeout(resolve, DELAY));
-    saveToStorage(STORAGE_KEYS.USER, userData);
-    return userData;
-  }
+    const res = await fetch(`${BASE_URL}/user/profile`, {
+      method: "PUT",
+      headers: authHeaders(),
+      body: JSON.stringify(userData),
+    });
+
+    return res.json();
+  },
+
+  makeCall: async (schedulerId: number) => {
+    const res = await fetch(`${BASE_URL}/twilio/call`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({
+        "scheduleId": schedulerId
+      })
+    });
+
+    return res.json();
+  },
+
+  totalCallsAvaliable: async ()=>{
+    const response = await fetch(`${BASE_URL}/twilio/avaliablecalls`)
+    const credits = await response.json();
+    if(credits.success){
+      return credits;
+    }
+  } 
+
 };

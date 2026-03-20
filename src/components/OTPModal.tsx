@@ -55,6 +55,7 @@ export const OTPModal: React.FC<OTPModalProps> = ({ isOpen, onClose, onVerify, p
     try {
       await onVerify(otpString);
     } catch (err: any) {
+      console.log(err);
       setError(err.message || 'Invalid OTP. Try 123456');
     } finally {
       setIsVerifying(false);

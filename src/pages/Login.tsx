@@ -13,26 +13,49 @@ export const Login: React.FC = () => {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone || phone.length < 10) {
-      setError('Please enter a valid phone number');
+
+    if (phone != "+918459781390") {
+      alert("Hey there, we are running on a free trial so you cant register directly, contact the team for craeting your trial account");
+      return;
+    }
+
+
+
+    if (!phone) {
+      setError('Please fill valid mobile no');
       return;
     }
 
     setIsLoading(true);
     setError('');
     try {
-      const result = await api.login(phone);
-      if (result.success) {
-        login(result.user);
-        navigate('/dashboard');
-      }
+      await api.sendOtp(phone);
+      setIsOtpModalOpen(true);
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please try again.');
+      console.log(err);
+      setError(err.message || 'Failed to send OTP. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (!(phone as string).startsWith("+91")) {
+      setPhone((prev: string) => ("+91" + prev));
+    }
+  },[phone]);
+
+  const handleVerifyOtp = async (otp: string) => {
+    console.log("inside login onVerify")
+
+    const result = await api.verifyOtpLogin(phone, otp);
+    if (result.success) {
+      login(result.user);
+      navigate('/dashboard');
     }
   };
 
@@ -42,7 +65,7 @@ export const Login: React.FC = () => {
       <div className="lg:w-1/2 p-12 lg:p-24 flex flex-col justify-between relative overflow-hidden">
         <div className="absolute -right-20 -top-20 w-96 h-96 bg-emerald-900 rounded-full opacity-50 blur-3xl" />
         <div className="absolute -left-20 -bottom-20 w-96 h-96 bg-emerald-800 rounded-full opacity-30 blur-3xl" />
-        
+
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-12">
             <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl">
@@ -51,7 +74,7 @@ export const Login: React.FC = () => {
             <span className="text-3xl font-black text-white tracking-tighter">MedCall</span>
           </div>
 
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-5xl lg:text-7xl font-black text-white leading-[1.1] tracking-tight mb-8"
@@ -60,13 +83,13 @@ export const Login: React.FC = () => {
             <span className="text-emerald-400 italic">via voice calls.</span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="text-emerald-100/70 text-xl max-w-md leading-relaxed mb-12"
           >
-            The simplest way for seniors to stay on track with their health. 
+            The simplest way for seniors to stay on track with their health.
             No apps, no notifications—just a friendly phone call.
           </motion.p>
 
@@ -97,14 +120,14 @@ export const Login: React.FC = () => {
             <p className="text-gray-500 font-medium">Enter your phone number to access your dashboard.</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 uppercase tracking-widest ml-1">Phone Number</label>
               <div className="relative group">
                 <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-600 transition-colors" size={20} />
-                <input 
-                  type="tel" 
-                  placeholder="+91 98765 43210" 
+                <input
+                  type="tel"
+                  placeholder="+91 98765 43210"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className={cn(
@@ -116,7 +139,7 @@ export const Login: React.FC = () => {
               {error && <p className="text-red-500 text-sm font-bold ml-1">{error}</p>}
             </div>
 
-            <button 
+            <button
               type="submit"
               disabled={isLoading}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-3 text-lg group disabled:opacity-70"
@@ -134,7 +157,7 @@ export const Login: React.FC = () => {
 
           <p className="text-center mt-12 text-gray-500 font-medium">
             New to MedCall?{' '}
-            <button 
+            <button
               onClick={() => navigate('/register')}
               className="text-emerald-600 font-black hover:underline underline-offset-4"
             >
@@ -143,6 +166,13 @@ export const Login: React.FC = () => {
           </p>
         </div>
       </div>
+
+      <OTPModal
+        isOpen={isOtpModalOpen}
+        onClose={() => setIsOtpModalOpen(false)}
+        onVerify={handleVerifyOtp}
+        phone={phone}
+      />
     </div>
   );
 };

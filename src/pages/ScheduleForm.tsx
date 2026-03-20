@@ -22,7 +22,7 @@ export const ScheduleForm: React.FC = () => {
   const [formData, setFormData] = useState({
     message: '',
     time: '08:00',
-    label: 'Morning',
+    label: 'Am',
     isActive: true,
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -166,11 +166,8 @@ export const ScheduleForm: React.FC = () => {
                   onChange={handleChange}
                   className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl transition-all outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-bold text-lg appearance-none cursor-pointer"
                 >
-                  <option value="Morning">Morning</option>
-                  <option value="Afternoon">Afternoon</option>
-                  <option value="Evening">Evening</option>
-                  <option value="Night">Night</option>
-                  <option value="Custom">Custom</option>
+                  <option value="am">Am</option>
+                  <option value="pm">Pm</option>
                 </select>
               </div>
             </div>

@@ -25,10 +25,25 @@ export const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormData((prev) => {
+      const phone = !(prev.phone as string).startsWith("+91") ? ("+91" + prev.phone) : prev.phone;
+      return {
+        ...prev,
+        phone: phone
+      }
+    })
+
+    if (formData.phone != "+918459781390") {
+      alert("Hey there, we are running on a free trial so you cant register directly, contact the team for craeting your trial account");
+      return;
+    }
+
     if (!formData.name || !formData.email || !formData.phone) {
       setError('Please fill in all fields');
       return;
     }
+
+
 
     setIsLoading(true);
     setError('');
@@ -52,7 +67,7 @@ export const Register: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl shadow-emerald-900/10 overflow-hidden flex flex-col md:flex-row"
@@ -61,9 +76,9 @@ export const Register: React.FC = () => {
         <div className="md:w-2/5 bg-emerald-600 p-12 text-white flex flex-col justify-between relative overflow-hidden">
           <div className="absolute -right-12 -top-12 w-48 h-48 bg-emerald-500 rounded-full opacity-50" />
           <div className="absolute -left-12 -bottom-12 w-48 h-48 bg-emerald-700 rounded-full opacity-50" />
-          
+
           <div className="relative z-10">
-            <button 
+            <button
               onClick={() => navigate('/login')}
               className="flex items-center gap-2 text-emerald-100 font-bold hover:text-white transition-colors mb-12"
             >
@@ -100,10 +115,10 @@ export const Register: React.FC = () => {
               <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
               <div className="relative group">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-600 transition-colors" size={18} />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="name"
-                  placeholder="John Doe" 
+                  placeholder="John Doe"
                   value={formData.name}
                   onChange={handleChange}
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-2xl transition-all outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-bold"
@@ -115,10 +130,10 @@ export const Register: React.FC = () => {
               <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-600 transition-colors" size={18} />
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   name="email"
-                  placeholder="john@example.com" 
+                  placeholder="john@example.com"
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-2xl transition-all outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-bold"
@@ -130,10 +145,10 @@ export const Register: React.FC = () => {
               <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
               <div className="relative group">
                 <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-600 transition-colors" size={18} />
-                <input 
-                  type="tel" 
+                <input
+                  type="tel"
                   name="phone"
-                  placeholder="+91 98765 43210" 
+                  placeholder="+91 98765 43210"
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-100 rounded-2xl transition-all outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-bold"
@@ -143,7 +158,7 @@ export const Register: React.FC = () => {
 
             {error && <p className="text-red-500 text-sm font-bold ml-1">{error}</p>}
 
-            <button 
+            <button
               type="submit"
               disabled={isLoading}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-3 text-lg group disabled:opacity-70"
@@ -163,7 +178,7 @@ export const Register: React.FC = () => {
         </div>
       </motion.div>
 
-      <OTPModal 
+      <OTPModal
         isOpen={isOtpModalOpen}
         onClose={() => setIsOtpModalOpen(false)}
         onVerify={handleVerifyOtp}
