@@ -1,11 +1,11 @@
 # 🚀 Frontend – Call Scheduling & OTP Verification App
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ibb.co/65VtvtJ" />
-<img width="1200" height="475" alt="GHBanner" src="https://ibb.co/CpnsR8gk" />
-<img width="1200" height="475" alt="GHBanner" src="https://ibb.co/qY7gJkMD" />
-<img width="1200" height="475" alt="GHBanner" src="https://ibb.co/d06mpJwB" />
-<img width="1200" height="475" alt="GHBanner" src="https://ibb.co/jkRQsfdP" />
-<img width="1200" height="475" alt="GHBanner" src="https://ibb.co/jv2xgF9Y" />
+<img width="1200" height="475" alt="GHBanner" src="https://i.ibb.co/CFN9J9s/Screenshot-2026-03-21-031446.png" />
+<img width="1200" height="475" alt="GHBanner" src="https://i.ibb.co/p63rYwct/Screenshot-2026-03-21-031704.png" />
+<img width="1200" height="475" alt="GHBanner" src="https://i.ibb.co/nM61Pzsw/Screenshot-2026-03-21-031804.png" />
+<img width="1200" height="475" alt="GHBanner" src="http://i.ibb.co/Lz6NghXS/Screenshot-2026-03-21-031925.png" />
+<img width="1200" height="475" alt="GHBanner" src="https://i.ibb.co/F4VyC39L/Screenshot-2026-03-21-032019.png" />
+<img width="1200" height="475" alt="GHBanner" src="https://i.ibb.co/Y7MKpG4S/Screenshot-2026-03-21-032148.png" />
 </div>
 A modern React-based frontend for a call scheduling platform that supports **OTP authentication**, **JWT-based sessions**, and **call credit management**.
 
